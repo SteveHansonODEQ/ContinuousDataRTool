@@ -3,8 +3,8 @@ library(plyr)
 library(lubridate)
 
 
-#test this edit
-#test add this 
+#test this edit change
+#test SubNum2 changes here
 
 #This script expects as input an excel file with worksheets named:
 #    SiteMasterInfo
