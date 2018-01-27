@@ -4,7 +4,7 @@ library(lubridate)
 
 
 #test this edit change
-#test add this 
+#test SubNum2 changes here
 
 #This script expects as input an excel file with worksheets named:
 #    SiteMasterInfo
