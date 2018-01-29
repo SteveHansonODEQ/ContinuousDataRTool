@@ -2,7 +2,6 @@ library(readxl)
 library(plyr)
 library(lubridate)
 
-# A change test
 
 #This script expects as input an excel file with worksheets named:
 #    SiteMasterInfo
