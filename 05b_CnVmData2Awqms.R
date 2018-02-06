@@ -8,23 +8,22 @@ library(dplyr)
 
 
 # Designate the folder where you are getting the .Rdata files.  Must end with '/'.
-in_path <- '//deqlab1/Vol_Data/umpqua/2014/ReferenceTemp14/Rfiles/'
+in_path <- '//deqlab1/WQM/TMDL/aWestern Region/Flat Creek/CnDO/2017OctoberNovember/Routputs/'
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
-out_path <- '//deqlab1/Vol_Data/umpqua/2014/ReferenceTemp14/AWQMS/'
+out_path <- '//deqlead-lims/SERVERFOLDERS/AWQMS/Continuous/1801033/'
 
 # Enter VolWQdb.t_Submission Number as text
-sbm <- '0089'
+sbm <- '1801033'
 
 # AWQMS Project 
-aprj <- 'VmOdeqSdcwcWqm'
+aprj <- 'TMDL'
 
 #  Get look up table for characteristics
 load('//deqlab1/WQM/Volunteer Monitoring/datamanagement/R/ContinuousDataReview/ConCharInfo.RData')
 
 #Set working directory
 setwd(in_path)
-
 
 
 ######################################
@@ -38,6 +37,7 @@ setwd(in_path)
 #Get the names for the .Rdata graded files
 fnames <- list.files(path = in_path, pattern = ".R[Dd]ata")
 datfls <- fnames[grep(paste0("^",sbm,".+_.Rdata"),fnames)] # data files
+#datfls <- fnames[grep(paste0("^TMDL",".+_.Rdata"),fnames)] # data files
 audfls <- fnames[grep(".AUDIT_INFO.Rdata",fnames)] # audit files
 svdfls <- fnames[grep(".RData", fnames)] # Saved files for volunteer db.
 
@@ -157,8 +157,12 @@ write.csv(awAud, file = paste0(out_path, aprj,'ContinuousAuditDataAwqmsUpload.cs
 ###                                ###
 ######################################
 
-dyDat <- fnames[grep(paste0(sbm,"Results.RData"),fnames)] # audit files
-dyAct <- fnames[grep(paste0(sbm,"Activity.RData"),fnames)] # audit files
+#dyDat <- fnames[grep(paste0(sbm,"Results.RData"),fnames)] # audit files
+#dyAct <- fnames[grep(paste0(sbm,"Activity.RData"),fnames)] # audit files
+
+# Some old formats may be named by project rather than work order/submission ID.
+dyDat <- fnames[grep(paste0(aprj,"Results.RData"),fnames)] # audit files
+dyAct <- fnames[grep(paste0(aprj,"Activity.RData"),fnames)] # audit files
 
 load(dyDat)
 load(dyAct)
@@ -171,23 +175,58 @@ dySum$Project <- aprj
 # Convert to AWQMS Monitoring Location
 dySum$SiteID <- paste0(dySum$SiteID,'-ORDEQ')
 
-# Add Start Date column
-dySum$StartDate <- strftime(dySum$StartDateTime, format =  '%m-%d-%Y')
+# Add Activity Start Date column
+dySum$ActStartDate <- strftime(dySum$StartDateTime, format =  '%m-%d-%Y')
 
-# Add Start Time column
-dySum$StartTime <- strftime(dySum$StartDateTime, format =  '%H:%M')
+# Add Activity Start Time column
+dySum$ActStartTime <- strftime(dySum$StartDateTime, format =  '%H:%M')
 
-#  Add Start Time Zone
-dySum$StartTimeZone <- stri_sub(as.character(as.POSIXct(dySum$StartDateTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
+#  Add Activity Start Time Zone
+dySum$ActStartTimeZone <- stri_sub(as.character(as.POSIXct(dySum$StartDateTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
 
-# Add End Date column
-dySum$EndDate <- strftime(dySum$EndDateTime, format =  '%m-%d-%Y')
+# Add Activity End Date column
+dySum$ActEndDate <- strftime(dySum$EndDateTime, format =  '%m-%d-%Y')
 
-# Add End Time column
-dySum$EndTime <- strftime(dySum$EndDateTime, format =  '%H:%M')
+# Add Activity End Time column
+dySum$ActEndTime <- strftime(dySum$EndDateTime, format =  '%H:%M')
 
-#  Add End Time Zone
-dySum$EndTimeZone <- stri_sub(as.character(as.POSIXct(dySum$EndDateTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
+#  Add Activity End Time Zone
+dySum$ActEndTimeZone <- stri_sub(as.character(as.POSIXct(dySum$EndDateTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
 
-write.csv(dySum, file = paste0(out_path, aprj,'DailySumStatCnDataAwqmsUpload.csv'))
+# Add Analytical Start Date column
+dySum$AnaStartDate <- strftime(dySum$AnalyticalStartTime, format =  '%m-%d-%Y')
 
+# Add Analytical Start Time column
+dySum$AnaStartTime <- strftime(dySum$AnalyticalStartTime, format =  '%H:%M')
+
+#  Add Analytical Start Time Zone
+dySum$AnaStartTimeZone <- stri_sub(as.character(as.POSIXct(dySum$AnalyticalStartTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
+
+# Add Analytical End Date column
+dySum$AnaEndDate <- strftime(dySum$AnalyticalEndTime, format =  '%m-%d-%Y')
+
+# Add Analytical End Time column
+dySum$AnaEndTime <- strftime(dySum$AnalyticalEndTime, format =  '%H:%M')
+
+#  Add Analytical End Time Zone
+dySum$AnaEndTimeZone <- stri_sub(as.character(as.POSIXct(dySum$AnalyticalEndTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
+
+# Concatenate all comment columns
+dySum$ActComment <- paste0(dySum$Org_Comment,"; ", dySum$DEQ_Comment)
+dySum$ActComment <- gsub('NA; |; NA', '', dySum$ActComment)
+
+# Populate Equipment columns
+dySum$SmplColEquip <- "Probe/Sensor" # Equipment type
+dySum$SmplEquipID <- stri_split_regex(dySum$ActivityID,'_', simplify = T)[,4] # equipment serial number or ID
+
+
+dySum <- dySum[, c("CharID", "Result", "Unit", "Method", "RsltType", "ORDEQ_DQL", "StatisticalBasis", "RsltTimeBasis",
+                   "DEQ_RsltComment", "ActivityType", "SiteID", "SmplColMthd", "SmplColEquip", "SmplDepth", "SmplDepthUnit", "SmplColEquipComment", 
+                   "Samplers", "SmplEquipID", "Project", "ActStartDate", "ActStartTime", "ActStartTimeZone", "ActEndDate", "ActEndTime", "ActEndTimeZone",
+                   "AnaStartDate", "AnaStartTime", "AnaStartTimeZone", "AnaEndDate", "AnaEndTime", "AnaEndTimeZone", "ActComment")]  
+
+
+write.csv(dySum, file = paste0(out_path, aprj, sbm,'DailySumStatCnDataAwqmsUpload.csv'))
+
+#  Files to upload to AWQMS end in ContinuousDataAwqmsUpload.csv, ContinuousDataAwqmsInfo.csv (meta data), ContinuousAuditDataAwqmsUpload.csv,
+# DailySumStatCnDataAwqmsUpload.csv.  
