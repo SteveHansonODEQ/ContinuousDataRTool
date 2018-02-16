@@ -339,7 +339,7 @@ for (i in seq_along(logchar$log)) {
   for (l in 1:length(cvdata$LOGGER_ID)) {
     # Determine the closest logged result
     cvdata$LgrInd[l] <- which.min(abs(tmp_data$DATETIME - cvdata$DATE_TIME[l]))
-    if (cvdata$PARAMETER[l] %in% c("TURB", "COND", "Q") & cvdata$EXPECTED_RESULT[l] != 0) {
+    if (cvdata$PARAMETER[l] %in% c("TURB", "COND", "Q") & cvdata$EXPECTED_RESULT[l] != 0) { # log scale parameters
       cvdata$diff[l] <- round(abs(cvdata$LOGGER_RESULT[l] - cvdata$EXPECTED_RESULT[l])/cvdata$EXPECTED_RESULT[l],5)
     } else {
       cvdata$diff[l] <- abs(cvdata$LOGGER_RESULT[l] - cvdata$EXPECTED_RESULT[l])

@@ -387,7 +387,7 @@ for (i in 1:length(validdatafiles)) {
     geom_point(data = dr_info, aes(x = AUDIT_DATETIME, y = AUDIT_RESULT), color = 'black', size = 3, alpha = 0.5) 
     
   
-  if (fileinfo[,'charid'] %in% c('Q', 'TURB', 'adjTURB')){
+  if (fileinfo[,'charid'] %in% c('Q', 'TURB', 'adjTURB', 'CHA', 'BGA')){
     # Log Scale
     pd <- pd + scale_y_log10() + annotation_logticks( base = 10, sides = 'l')
   } else if (fileinfo[,'charid'] %in% c('TEMP', 'adjTEMP')) {
