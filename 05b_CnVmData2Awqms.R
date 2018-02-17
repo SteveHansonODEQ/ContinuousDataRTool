@@ -11,7 +11,7 @@ library(dplyr)
 in_path <- '//deqlab1/WQM/TMDL/aWestern Region/Flat Creek/CnDO/2017OctoberNovember/Routputs/'
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
-out_path <- '//deqlead-lims/SERVERFOLDERS/AWQMS/Continuous/1801033/'
+out_path <- '//deqlead-lims/SERVERFOLDERS/AWQMS/Continuous/1801033/test/'
 
 # Enter VolWQdb.t_Submission Number as text
 sbm <- '1801033'
@@ -85,9 +85,11 @@ awqmsCnDat$Time <- strftime(awqmsCnDat$DATETIME, format =  '%H:%M')
 #  Add Time Zone
 awqmsCnDat$TimeZone <- stri_sub(as.character(as.POSIXct(awqmsCnDat$DATETIME), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
 
-# Export to csv
+# remove text NA's that are character "NA"
+acdc <- apply(awqmsCnDat, 2, function(y) gsub(pattern ="NA", replacement = "", y))
 
-write.csv(awqmsCnDat, file = paste0(out_path, aprj,'ContinuousDataAwqmsUpload.csv'))
+# Export to csv removing real NA values
+write.csv(acdc, file = paste0(out_path, aprj,'ContinuousDataAwqmsUpload.csv'), na = "")
 
 
 
@@ -110,12 +112,13 @@ smi2 <- smi[,which(names(smi) %in% c('Logger_ID','LASAR_ID','Station_Description
 names(smi2) <- c('EquipID', 'Station', 'Station_Description', 'Depth_m')
 smi2$Station <- paste0(smi2$Station, '-ORDEQ') 
 
-smi2[10,2] <- '38591-ORDEQ' # submission 0020 problem
+#smi2[10,2] <- '38591-ORDEQ' # submission 0020 problem
 
 DeployInfo <- merge(DeployInfo, smi2, all = T)
 DeployInfo$Project <- aprj
 
-write.csv(DeployInfo, file = paste0(out_path, aprj,'ContinuousDataAwqmsInfo.csv'))
+write.csv(DeployInfo, file = paste0(out_path, aprj,'ContinuousDataAwqmsInfo.csv'), na = "")
+
 
 
 
@@ -148,7 +151,7 @@ awAud$Time <- strftime(awAud$StartDateTime, format =  '%H:%M')
 #  Add Time Zone
 awAud$TimeZone <- stri_sub(as.character(as.POSIXct(awAud$StartDateTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
 
-write.csv(awAud, file = paste0(out_path, aprj,'ContinuousAuditDataAwqmsUpload.csv'))
+write.csv(awAud, file = paste0(out_path, aprj,'ContinuousAuditDataAwqmsUpload.csv'), na = '')
 
 
 ######################################
@@ -226,7 +229,10 @@ dySum <- dySum[, c("CharID", "Result", "Unit", "Method", "RsltType", "ORDEQ_DQL"
                    "AnaStartDate", "AnaStartTime", "AnaStartTimeZone", "AnaEndDate", "AnaEndTime", "AnaEndTimeZone", "ActComment")]  
 
 
-write.csv(dySum, file = paste0(out_path, aprj, sbm,'DailySumStatCnDataAwqmsUpload.csv'))
+# remove text NA's "NA"
+dysm <- apply(dySum, 2, function(y) gsub(pattern ="NA", replacement = "", y))
+
+write.csv(dysm, file = paste0(out_path, aprj, sbm,'DailySumStatCnDataAwqmsUpload.csv'), na = '')
 
 #  Files to upload to AWQMS end in ContinuousDataAwqmsUpload.csv, ContinuousDataAwqmsInfo.csv (meta data), ContinuousAuditDataAwqmsUpload.csv,
 # DailySumStatCnDataAwqmsUpload.csv.  
