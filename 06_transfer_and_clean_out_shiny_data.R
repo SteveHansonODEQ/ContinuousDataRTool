@@ -1,8 +1,8 @@
 #Set the path to where you want to put the graded data
-out_path <- "//deqlab1/Vol_Data/umpqua/2016/UmpRefTemp2016Tmplate/Routputs/"
+out_path <- "//deqlab1/Vol_Data/socoast/2013Submit/2013 Multiparameter Data Submit/Rfiles/"
 
 #This shouldn't change
-shiny_path <- "//deqlab1/wqm/Volunteer Monitoring/datamanagement/R/ContinuousDataReview/Check_shinyapp/data/"
+shiny_path <- "//deqlab1/wqm/DataManagement/ContinuousDataRTool/Check_shinyapp/data/"
 
 #Gather filenames in the shiny folder
 in_fnames <- list.files(shiny_path, full.names = TRUE)

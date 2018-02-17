@@ -8,10 +8,13 @@ library(dplyr)
 
 
 # Designate the folder where you are getting the .Rdata files.  Must end with '/'.
-in_path <- '//deqlab1/WQM/TMDL/aWestern Region/Flat Creek/CnDO/2017OctoberNovember/Routputs/'
+shiny_path <- '//deqlab1/WQM/DataManagement/ContinuousDataRTool/Check_shinyapp/data/'
+
+# Location for the saved files for the volunteer database
+in_path <- '//deqlab1/WQM/DataManagement/test/'
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
-out_path <- '//deqlead-lims/SERVERFOLDERS/AWQMS/Continuous/1801033/'
+out_path <- '//deqlab1/WQM/DataManagement/test/'
 
 # Enter VolWQdb.t_Submission Number as text
 sbm <- '1801033'
@@ -20,10 +23,10 @@ sbm <- '1801033'
 aprj <- 'TMDL'
 
 #  Get look up table for characteristics
-load('//deqlab1/WQM/Volunteer Monitoring/datamanagement/R/ContinuousDataReview/ConCharInfo.RData')
+load('//deqlab1/wqm/DataManagement/ContinuousDataRTool/ConCharInfo.RData')
 
 #Set working directory
-setwd(in_path)
+setwd(shiny_path)
 
 
 ######################################
@@ -35,11 +38,13 @@ setwd(in_path)
 
 
 #Get the names for the .Rdata graded files
-fnames <- list.files(path = in_path, pattern = ".R[Dd]ata")
-datfls <- fnames[grep(paste0("^",sbm,".+_.Rdata"),fnames)] # data files
-#datfls <- fnames[grep(paste0("^TMDL",".+_.Rdata"),fnames)] # data files
+fnames <- list.files(path = shiny_path, pattern = ".R[Dd]ata")
+#datfls <- fnames[grep(paste0("^",sbm,".+_.Rdata"),fnames)] # data files
+datfls <- fnames[grep(paste0("^TMDL",".+_.Rdata"),fnames)] # data files
 audfls <- fnames[grep(".AUDIT_INFO.Rdata",fnames)] # audit files
-svdfls <- fnames[grep(".RData", fnames)] # Saved files for volunteer db.
+
+dbnames <- list.files(path = in_path, pattern = ".R[Dd]ata")
+svdfls <- dbnames[grep(".RData", dbnames)] # Saved files for volunteer db.
 
 
 
@@ -85,9 +90,11 @@ awqmsCnDat$Time <- strftime(awqmsCnDat$DATETIME, format =  '%H:%M')
 #  Add Time Zone
 awqmsCnDat$TimeZone <- stri_sub(as.character(as.POSIXct(awqmsCnDat$DATETIME), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
 
-# Export to csv
+# remove text NA's that are character "NA"
+acdc <- apply(awqmsCnDat, 2, function(y) gsub(pattern ="NA", replacement = "", y))
 
-write.csv(awqmsCnDat, file = paste0(out_path, aprj,'ContinuousDataAwqmsUpload.csv'))
+# Export to csv removing real NA values
+write.csv(acdc, file = paste0(out_path, aprj, sbm, 'ContinuousDataAwqmsUpload.csv'), na = "")
 
 
 
@@ -110,12 +117,13 @@ smi2 <- smi[,which(names(smi) %in% c('Logger_ID','LASAR_ID','Station_Description
 names(smi2) <- c('EquipID', 'Station', 'Station_Description', 'Depth_m')
 smi2$Station <- paste0(smi2$Station, '-ORDEQ') 
 
-smi2[10,2] <- '38591-ORDEQ' # submission 0020 problem
+#smi2[10,2] <- '38591-ORDEQ' # submission 0020 problem
 
 DeployInfo <- merge(DeployInfo, smi2, all = T)
 DeployInfo$Project <- aprj
 
-write.csv(DeployInfo, file = paste0(out_path, aprj,'ContinuousDataAwqmsInfo.csv'))
+write.csv(DeployInfo, file = paste0(out_path, aprj, sbm, 'ContinuousDataAwqmsInfo.csv'), na = "")
+
 
 
 
@@ -125,8 +133,10 @@ write.csv(DeployInfo, file = paste0(out_path, aprj,'ContinuousDataAwqmsInfo.csv'
 ###                                ###
 ######################################
 
-audDat <- fnames[grep(".AuditResults.RData",fnames)] # audit files
-audAct <- fnames[grep(".AuditActivity.RData",fnames)] # audit files
+audDat <- dbnames[grep(".AuditResults.RData",dbnames)] # audit files
+audAct <- dbnames[grep(".AuditActivity.RData",dbnames)] # audit files
+
+setwd(in_path)
 
 load(audDat)
 load(audAct)
@@ -148,7 +158,7 @@ awAud$Time <- strftime(awAud$StartDateTime, format =  '%H:%M')
 #  Add Time Zone
 awAud$TimeZone <- stri_sub(as.character(as.POSIXct(awAud$StartDateTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
 
-write.csv(awAud, file = paste0(out_path, aprj,'ContinuousAuditDataAwqmsUpload.csv'))
+write.csv(awAud, file = paste0(out_path, aprj, sbm, 'ContinuousAuditDataAwqmsUpload.csv'), na = '')
 
 
 ######################################
@@ -161,8 +171,12 @@ write.csv(awAud, file = paste0(out_path, aprj,'ContinuousAuditDataAwqmsUpload.cs
 #dyAct <- fnames[grep(paste0(sbm,"Activity.RData"),fnames)] # audit files
 
 # Some old formats may be named by project rather than work order/submission ID.
-dyDat <- fnames[grep(paste0(aprj,"Results.RData"),fnames)] # audit files
-dyAct <- fnames[grep(paste0(aprj,"Activity.RData"),fnames)] # audit files
+dyDat <- dbnames[grep(paste0(sbm,"Results.RData"),dbnames)] # audit files
+dyAct <- dbnames[grep(paste0(sbm,"Activity.RData"),dbnames)] # audit files
+
+# Some old formats may be named by project rather than work order/submission ID.
+#dyDat <- dbnames[grep(paste0(aprj,"Results.RData"),dbnames)] # audit files
+#dyAct <- dbnames[grep(paste0(aprj,"Activity.RData"),dbnames)] # audit files
 
 load(dyDat)
 load(dyAct)
@@ -226,7 +240,10 @@ dySum <- dySum[, c("CharID", "Result", "Unit", "Method", "RsltType", "ORDEQ_DQL"
                    "AnaStartDate", "AnaStartTime", "AnaStartTimeZone", "AnaEndDate", "AnaEndTime", "AnaEndTimeZone", "ActComment")]  
 
 
-write.csv(dySum, file = paste0(out_path, aprj, sbm,'DailySumStatCnDataAwqmsUpload.csv'))
+# remove text NA's "NA"
+dysm <- apply(dySum, 2, function(y) gsub(pattern ="NA", replacement = "", y))
+
+write.csv(dysm, file = paste0(out_path, aprj, sbm,'DailySumStatCnDataAwqmsUpload.csv'), na = '')
 
 #  Files to upload to AWQMS end in ContinuousDataAwqmsUpload.csv, ContinuousDataAwqmsInfo.csv (meta data), ContinuousAuditDataAwqmsUpload.csv,
 # DailySumStatCnDataAwqmsUpload.csv.  

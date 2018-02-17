@@ -47,14 +47,14 @@ library(lubridate)
 #Note: the last column name is DQL because TEMP is contained in row 4 which is a skipped row
 
 #Set the data file path and file that you want to process
-src_file <- '//deqlab1/wqm/TMDL/RDataManagement/TillamookSloughs_DO_May_2016/RDataReview_TillamookSloughs_May2016.xlsx'
+src_file <- '//deqlab1/Vol_Data/socoast/2013Submit/2013 Multiparameter Data Submit/4Rcombineddata.xlsx'
 
-SubID <- '1611164' # Enter the submission ID from VolWQDB
+SubID <- '0099' # Enter the submission ID from VolWQDB
 
 
 
 #Set the output location where the shiny app can use it
-save_dir <- '//deqlab1/wqm/DataManagement/ContinuousDataRTool/Check_shinyapp/data'
+save_dir <- '//deqlab1/Vol_Data/socoast/2013Submit/2013 Multiparameter Data Submit/fix/'
 
 
 
@@ -67,7 +67,7 @@ save_dir <- '//deqlab1/wqm/DataManagement/ContinuousDataRTool/Check_shinyapp/dat
 # If you load the files above, then skip the steps below down to '# Load the QC criteria for continuous data.'
 
 # for comparison to valid charid values load
-load('//deqlab1/wqm/Volunteer Monitoring/datamanagement/R/ContinuousDataReview/ConCharInfo.RData')
+load('//deqlab1/wqm/DataManagement/ContinuousDataRTool/ConCharInfo.RData')
 
 #Grab the master info sheet that has the logger ids
 capture.output(smi <- read_excel(src_file, sheet = 'SiteMasterInfo', skip = 5), file = "nul")  ###  NOTE skip rows seem inconsistent 4 or 5
@@ -101,6 +101,7 @@ audits <- audits[!is.na(audits$DATE),]
 audits <- audits[!is.na(audits$TIME),]
 audits$LOGGER_ID <- gsub("\\..*","",audits$LOGGER_ID)
 audits$date_char <- strftime(audits$DATE, format = '%Y-%m-%d', origin = "1970-01-01", tz = 'UTC')
+#audits$time_char <- audits$TIME
 audits$time_char <- strftime(audits$TIME, format = '%H:%M:%S', tz ='UTC')
 audits$datetime <- paste(audits$date_char, audits$time_char)
 audits$AUDIT_DATETIME <- as.POSIXct(strptime(audits$datetime, format = "%Y-%m-%d %H:%M:%S", tz = 'America/Los_Angeles'))
@@ -118,7 +119,7 @@ names(logchar)<-c('log','char')
 ############################################################################################################
 
 # Load the QC criteria for continuous data
-load('//deqlab1/wqm/Volunteer Monitoring/datamanagement/R/ContinuousDataReview/ConQC.RData')
+load('//deqlab1/wqm/DataManagement/ContinuousDataRTool/ConQC.RData')
 #ConQC <- read.csv('//deqlab1/wqm/Volunteer Monitoring/datamanagement/R/ConQC.csv')
 
 
@@ -146,6 +147,7 @@ for (i in seq_along(logchar$log)) {
   tmp_data <- tmp_data[!is.na(tmp_data$DATE),]
   tmp_data$date_char <- strftime(tmp_data$DATE, format = "%Y-%m-%d", tz = 'UTC')
   tmp_data$time_char <- strftime(tmp_data$TIME, format = '%H:%M:%S', tz ='UTC')
+  #tmp_data$time_char <- tmp_data$TIME
   tmp_data$datetime <- paste(tmp_data$date_char, tmp_data$time_char)
   tmp_data$DATETIME <- as.POSIXct(strptime(tmp_data$datetime, format = "%Y-%m-%d %H:%M:%S", tz = 'America/Los_Angeles'))
   
@@ -298,8 +300,7 @@ for (i in seq_along(logchar$log)) {
   
   
   dr_obs <- dr_obs[order(dr_obs$DATETIME), ]
-  dr_obs <- rename(dr_obs, c('DATETIME' = "OBS_DATETIME",
-                             'r' = 'LOGGED_RESULT'))
+  dr_obs <- plyr::rename(dr_obs, c('DATETIME' = 'OBS_DATETIME','r' = 'LOGGED_RESULT' ))
   dr_info <- cbind(dr_info, dr_obs) # the two results will not be the same b/c former is hand selected and later is assigned via 
   # code above. OBS_RESULT is not a value reported in logged data, but read directly from unit at time of audit. 
   

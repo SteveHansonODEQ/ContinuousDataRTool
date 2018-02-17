@@ -4,20 +4,20 @@
 
 library(RODBC)
 
-# Designate the folder where you are getting the .Rdata files.  Must end with '/'.
-in_path <- '//deqlab1/Vol_Data/umpqua/2014/ReferenceTemp14/Rfiles/'
+# Designate the folder where you are getting the .RData files, the save_path from the 04 Script.  Must end with '/'.
+in_path <- '//deqlab1/Vol_Data/socoast/2013Submit/2013 Multiparameter Data Submit/Routputs/'
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
-out_path <- '//deqlab1/Vol_Data/umpqua/2014/ReferenceTemp14/AWQMS/'
+out_path <- '//deqlab1/Vol_Data/socoast/2013Submit/2013 Multiparameter Data Submit/Routputs/'
 
 # Enter VolWQdb.t_Submission Number as text
-sbm <- '0089'
+sbm <- '0099'
 
 # AWQMS Project 
 aprj <- 'VmOdeqSdcwcWqm'
 
 #  Get look up table for characteristics
-load('//deqlab1/WQM/Volunteer Monitoring/datamanagement/R/ContinuousDataReview/ConCharInfo.RData')
+load('//deqlab1/wqm/DataManagement/ContinuousDataRTool/ConCharInfo.RData')
 
 #Set working directory
 setwd(in_path)
