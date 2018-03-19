@@ -22,9 +22,9 @@ ConCharInfo <- '//deqlab1/wqm/DataManagement/ContinuousDataRTool/ConCharInfo.RDa
  load(ConCharInfo)
 
 ### INPUT provide sampling organization from VolWQdb.tlu_Organization.OrgAbrv
-ORG <- 'DEQ' 
+ORG <- 'OREGONDEQ' 
 
-SubID <- '1801033' # Enter the submission ID from VolWQDB
+SubID <- '1611171' # Enter the submission ID from VolWQDB
 
 aprj <- 'TMDL'#  AWQMS Project ID
 
@@ -32,7 +32,7 @@ aprj <- 'TMDL'#  AWQMS Project ID
 shiny_path <- "//deqlab1/WQM/DataManagement/ContinuousDataRTool/Check_shinyapp/data/"
 
 ###  LOCATION TO SAVE DATA FILES CREATED IN PROCESS
-save_path <- "//deqlab1/WQM/DataManagement/test/"  # make sure this ends with an /
+save_path <- "//deqlab1/WQM/TMDL/RDataManagement/TillamookSloughs_DO_Oct_2016/"  # make sure this ends with an /
 
 
 

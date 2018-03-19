@@ -13,7 +13,7 @@ names(all_cols) <- as.vector(outer(c('A','B','C','E', "NA"), c('TRUE','FALSE',"N
 all_flls <- c("black", "#FF9B4C", "#7277C1", "#998B6B", "#C0C0C0", 
               "black", "#FF9B4C", "#7277C1", "#998B6B", "#C0C0C0",
               "black", "#FF9B4C", "#7277C1", "#998B6B", "#C0C0C0")
-names(all_flls) <- as.vector(outer(c('A','B','C', 'E', "NA"), c('FALSE','TRUE',"NA"), 
+names(all_flls) <- as.vector(outer(c('A','B','C','E', "NA"), c('FALSE','TRUE',"NA"), 
                                    paste, sep=" "))
 
 shinyServer(function(input, output, session) {

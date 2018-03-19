@@ -8,16 +8,16 @@ library(dplyr)
 
 
 # Designate the folder where you are getting the .Rdata files.  Must end with '/'.
-shiny_path <- '//deqlab1/WQM/DataManagement/ContinuousDataRTool/Check_shinyapp/data/'
+shiny_path <-  "//deqlab1/WQM/DataManagement/ContinuousDataRTool/Check_shinyapp/data/"
 
 # Location for the saved files for the volunteer database
-in_path <- '//deqlab1/WQM/DataManagement/test/'
+in_path <- "//deqlab1/WQM/TMDL/RDataManagement/TillamookSloughs_DO_Oct_2016/Routputs/"
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
-out_path <- '//deqlab1/WQM/DataManagement/test/'
+out_path <- "//deqlead-lims/SERVERFOLDERS/WQ_Continuous/1611171/"
 
 # Enter VolWQdb.t_Submission Number as text
-sbm <- '1801033'
+sbm <- '1611171'
 
 # AWQMS Project 
 aprj <- 'TMDL'
@@ -39,8 +39,8 @@ setwd(shiny_path)
 
 #Get the names for the .Rdata graded files
 fnames <- list.files(path = shiny_path, pattern = ".R[Dd]ata")
-#datfls <- fnames[grep(paste0("^",sbm,".+_.Rdata"),fnames)] # data files
-datfls <- fnames[grep(paste0("^TMDL",".+_.Rdata"),fnames)] # data files
+datfls <- fnames[grep(paste0("^",sbm,".+_.Rdata"),fnames)] # data files
+#datfls <- fnames[grep(paste0("^TMDL",".+_.Rdata"),fnames)] # data files
 audfls <- fnames[grep(".AUDIT_INFO.Rdata",fnames)] # audit files
 
 dbnames <- list.files(path = in_path, pattern = ".R[Dd]ata")

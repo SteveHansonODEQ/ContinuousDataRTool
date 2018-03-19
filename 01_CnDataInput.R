@@ -47,14 +47,14 @@ library(lubridate)
 #Note: the last column name is DQL because TEMP is contained in row 4 which is a skipped row
 
 #Set the data file path and file that you want to process
-src_file <- '//deqlab1/Vol_Data/socoast/2013Submit/2013 Multiparameter Data Submit/4Rcombineddata.xlsx'
+src_file <- "//deqlab1/wqm/TMDL/RDataManagement/TillamookSloughs_DO_Oct_2016/1611171_TillSlouOct2016.xlsx"
 
-SubID <- '0099' # Enter the submission ID from VolWQDB
+SubID <- '1611171' # Enter the submission ID from VolWQDB
 
 
 
 #Set the output location where the shiny app can use it
-save_dir <- '//deqlab1/Vol_Data/socoast/2013Submit/2013 Multiparameter Data Submit/fix/'
+save_dir <- 'S:/DataManagement/ContinuousDataRTool/Check_shinyapp/data/'
 
 
 
