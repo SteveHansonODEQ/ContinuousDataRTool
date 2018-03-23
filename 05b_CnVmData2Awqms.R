@@ -14,6 +14,7 @@ shiny_path <-  "//deqlab1/WQM/DataManagement/ContinuousDataRTool/Check_shinyapp/
 in_path <- "//deqlab1/WQM/TMDL/RDataManagement/TillamookSloughs_DO_Oct_2016/Routputs/"
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
+
 out_path <- "//deqlead-lims/SERVERFOLDERS/WQ_Continuous/1611171/"
 
 # Enter VolWQdb.t_Submission Number as text
@@ -94,7 +95,9 @@ awqmsCnDat$TimeZone <- stri_sub(as.character(as.POSIXct(awqmsCnDat$DATETIME), fo
 acdc <- apply(awqmsCnDat, 2, function(y) gsub(pattern ="NA", replacement = "", y))
 
 # Export to csv removing real NA values
+
 write.csv(acdc, file = paste0(out_path, aprj, sbm, 'ContinuousDataAwqmsUpload.csv'), na = "")
+
 
 
 
@@ -122,7 +125,9 @@ smi2$Station <- paste0(smi2$Station, '-ORDEQ')
 DeployInfo <- merge(DeployInfo, smi2, all = T)
 DeployInfo$Project <- aprj
 
+<<<<<<< HEAD
 write.csv(DeployInfo, file = paste0(out_path, aprj, sbm, 'ContinuousDataAwqmsInfo.csv'), na = "")
+
 
 
 
@@ -158,7 +163,9 @@ awAud$Time <- strftime(awAud$StartDateTime, format =  '%H:%M')
 #  Add Time Zone
 awAud$TimeZone <- stri_sub(as.character(as.POSIXct(awAud$StartDateTime), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
 
+
 write.csv(awAud, file = paste0(out_path, aprj, sbm, 'ContinuousAuditDataAwqmsUpload.csv'), na = '')
+
 
 
 ######################################
