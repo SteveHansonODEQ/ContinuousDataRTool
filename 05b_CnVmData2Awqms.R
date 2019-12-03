@@ -8,17 +8,17 @@ library(dplyr)
 
 
 # Designate the folder where you are getting the .Rdata files.  Must end with '/'.
-shiny_path <-  "//deqlab1/WQM/DataManagement/ContinuousDataRTool/Check_shinyapp/data/"
+shiny_path <-  "//deqlab1/WQM/TMDL/RDataManagement/1911104_LostR_2019/ContinuousDataRTool/Check_shinyapp/data/"
 
 # Location for the saved files for the volunteer database
-in_path <- "//deqlab1/WQM/TMDL/RDataManagement/TillamookSloughs_DO_Oct_2016/Routputs/"
+in_path <- "//deqlab1/WQM/TMDL/aEastern Region/Lost River/2019_LostRiver/ContinousData/ROutputs/"
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
 
-out_path <- "//deqlead-lims/SERVERFOLDERS/WQ_Continuous/1611171/"
+out_path <- "//deqlab1/WQM/TMDL/aEastern Region/Lost River/2019_LostRiver/ContinousData/ROutputs/"
 
 # Enter VolWQdb.t_Submission Number as text
-sbm <- '1611171'
+sbm <- '1911104'
 
 # AWQMS Project 
 aprj <- 'TMDL'
@@ -125,7 +125,7 @@ smi2$Station <- paste0(smi2$Station, '-ORDEQ')
 DeployInfo <- merge(DeployInfo, smi2, all = T)
 DeployInfo$Project <- aprj
 
-<<<<<<< HEAD
+#<<<<<<< HEAD
 write.csv(DeployInfo, file = paste0(out_path, aprj, sbm, 'ContinuousDataAwqmsInfo.csv'), na = "")
 
 
