@@ -24,15 +24,15 @@ ConCharInfo <- '//deqlab1/wqm/DataManagement/ContinuousDataRTool/ConCharInfo.RDa
 ### INPUT provide sampling organization from VolWQdb.tlu_Organization.OrgAbrv
 ORG <- 'OREGONDEQ' 
 
-SubID <- '1611171' # Enter the submission ID from VolWQDB
+SubID <- '1911104' # Enter the submission ID from VolWQDB
 
 aprj <- 'TMDL'#  AWQMS Project ID
 
 ###  LOCATION OF DATA FILES TO BE PROCESSED (This shouldn't change)
-shiny_path <- "//deqlab1/WQM/DataManagement/ContinuousDataRTool/Check_shinyapp/data/"
+shiny_path <- "//deqlab1/WQM/TMDL/RDataManagement/1911104_LostR_2019/ContinuousDataRTool/Check_shinyapp/data/"
 
 ###  LOCATION TO SAVE DATA FILES CREATED IN PROCESS
-save_path <- "//deqlab1/WQM/TMDL/RDataManagement/TillamookSloughs_DO_Oct_2016/"  # make sure this ends with an /
+save_path <- "//deqlab1/WQM/TMDL/aEastern Region/Lost River/2019_LostRiver/ContinousData/ROutputs/"  # make sure this ends with an /
 
 
 
@@ -317,7 +317,7 @@ for (i in 1:length(validdatafiles)) {
   ds <- daydat[,c("LASAR", "SiteDesc", "LoggerID", "Depth_m", "charid", "date", "dDTmin", "dDTmax","dyN", "hrNday", 
                   "dydql", "dDQL", "dyMean", "dyMin", "dyMax", "delta", "dyMedian", "anaStart", "anaEnd", "ma", "cmnt")]
   
-  # Stack all the daily summaries together and then save as a csv.
+  # Stack all the daily summaries together. and then save as a csv.
   if (i == 1) {
     tmpDyStat <- ds
   } else if (i > 1 && i < length(validdatafiles)) {
@@ -326,6 +326,12 @@ for (i in 1:length(validdatafiles)) {
     tmpDyStat <- rbind(tmpDyStat, ds)
     write.csv(tmpDyStat, file = paste0(save_path,'/',fileinfo[,"subid"],'_','DailyStats.csv'))
     print('Daily Stat Summary CSV saved')
+  }
+  
+  # When only one datafile
+  if (length(validdatafiles) == 1) {
+    write.csv(tmpDyStat, file = paste0(save_path,'/',fileinfo[,"subid"],'_','DailyStats.csv'))
+    print('One Daily Stat Summary CSV saved')
   }
   
   ######################################################
@@ -366,6 +372,11 @@ for (i in 1:length(validdatafiles)) {
     print('Deployment Stat Summary CSV saved')
   }
   
+  # When only one datafile
+  if (length(validdatafiles) == 1) {
+    write.csv(tmpDepStat, file = paste0(save_path,'/',fileinfo[,"subid"],'_','DeployStats.csv'))
+    print('One Deployment Stat Summary CSV saved')
+  }
   
   #############################################################
   ###############################
@@ -548,6 +559,17 @@ for (i in 1:length(validdatafiles)) {
     save(t_ActGrp2Act, file = paste0(save_path, fileinfo$subid, 'ActGrp2Act','.RData')) # this should have all the activities listed with their activity groups
   }
   
+  # When only one datafile
+  if (length(validdatafiles) == 1) {
+    save(t_ConDatAct, file = paste0(save_path, fileinfo$subid, 'Activity','.RData')) # this should have all the activities listed
+    # Activity Group One Datafile
+    t_ActGrp <- unique(t_ActGrp)
+    save(t_ActGrp, file = paste0(save_path, fileinfo$subid, 'ActivityGrps','.RData')) # this should have all the activity groups  == number of deployments
+    # Activity Group to Activity Junction Table One Datafile
+    t_ActGrp2Act <- unique(t_ActGrp2Act)
+    save(t_ActGrp2Act, file = paste0(save_path, fileinfo$subid, 'ActGrp2Act','.RData')) # this should have all the activities listed with their activity groups
+  }
+  
   
   print('prepare results stats for upload')
   ##########################################################
@@ -658,6 +680,10 @@ for (i in 1:length(validdatafiles)) {
     
   }
   
+  # When only one datafile
+  if (length(validdatafiles) == 1) {
+    save(t_CnRslt, file = paste0(save_path, fileinfo$subid, 'Results','.RData')) # this should have all the activities from the one file
+  }
   
   #########################################################################################
   
@@ -755,6 +781,14 @@ for (i in 1:length(validdatafiles)) {
     
   }
   
+  # When only one audit file
+  if (length(validdatafiles) == 1){
+    save(t_CnAudAct, file = paste0(save_path, fileinfo$subid, 'AuditActivity','.RData')) # this should have all the activities listed
+    # Audit Activity Group one audit file
+    save(t_AudActGrp, file = paste0(save_path, fileinfo$subid, 'AuditActivityGrps','.RData')) # this should have all the activity groups  == number of deployments
+    # Audit Activity Group to Activity Junction Table one audit file
+    save(t_AudActGrp2Act, file = paste0(save_path, fileinfo$subid, 'AuditActGrp2Act','.RData')) # this should have all the activities listed with their activity groups
+  }
   
 #  }  deleted this not sure it is not needed
   
@@ -808,6 +842,13 @@ for (i in 1:length(validdatafiles)) {
     save(t_CnAudRslt, file = paste0(save_path, fileinfo$subid, 'AuditResults','.RData')) # this should have all the activities listed
     
   }
+  
+  # If only one valid datafile
+  if (length(validdatafiles) == 1) {
+    t_CnAudRslt <- t_CnAudRslt[!is.na(t_CnAudRslt$Result),] # Removed blank result
+    save(t_CnAudRslt, file = paste0(save_path, fileinfo$subid, 'AuditResults','.RData')) # this should have all the activities listed
+  }
+  
   print(paste0(fileinfo$LoggerID, '-', fileinfo$charid, ' Done '))
 } # end of big for loop
 
