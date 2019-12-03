@@ -1,45 +1,71 @@
+
 #This script is intended to be copied and saved for each logger
 #Filename for saving this script should be equivalent to fname_edits.R
-# Set the filename - This should be what you see in the select station box in the shiny app
-fname <- "0034_37372_10127731_TEMP_20160504_Kelley Creek d_s of Centennial Pond_NA_.Rdata"
+#Choose file to work on
 
-#This won't need to change
-path <- "//deqlab1/wqm/Volunteer Monitoring/datamanagement/R/ContinuousDataReview/Check_shinyapp/data/"
+# May need to run this on the first file, takes two rounds to open filepath to the correct folder
+setwd('//deqlab1/WQM/DataManagement/ContinuousDataRTool/Check_shinyapp/data')
 
-# This is the directory of the original Excel files and is where this script is saved at the end
-#EditPath <- '//deqlead02/Vol_Data/JohnsonCrWC/2016/'
+#clean out exisiting environment
+#helps to avoid overwriting
+rm(list = ls())
 
-load(paste0(path, fname))
+filepath <- file.choose()
 
+###################################
+###################################
 
-
+load(filepath)
+print(filepath)
 
 #When making adjustments for more than one range copy the code between 
 # HERE and TO HERE and past it below in order to maintain a record of the
 # changes you've made to the DQL. It would also be handy if you added a 
 # little explanantion of why you are editing the DQL for that range
 
+#########################################################################
 # 1
 #HERE
 #To adjust DQL for a specific date range
 #First set the ranges you want to modify and the new DQL to assign
-start_date_time_char <- "2015-05-01 12:45:00"
-end_date_time_char <- "2015-05-01 16:40:00"
-new_DQL <- 'C'
+start_date_time_char <- "2018-10-15 12:30:00"
+end_date_time_char <- "2018-10-18 13:15:00"
+new_DQL <- 'A'
 # provide a brief justification if necessary.  Comment must be in ''  
-cmnt <- 'Can you see me now?'
+cmnt <- 'Corrected field audits verfied with post run check agains NIST meter'
 
 #Run these to actually update the file
 start <- as.POSIXct(strptime(start_date_time_char, format = "%Y-%m-%d %H:%M:%S"))
 end <- as.POSIXct(strptime(end_date_time_char, format = "%Y-%m-%d %H:%M:%S"))
 tmp_data[tmp_data$DATETIME >= start & tmp_data$DATETIME <= end, 'rDQL'] <- new_DQL
-tmp_data[tmp_data$DATETIME >= start & tmp_data$DATETIME <= end, 'cmnt'] <- cmnt
+#tmp_data[tmp_data$DATETIME >= start & tmp_data$DATETIME <= end, 'cmnt'] <- cmnt
 #TO HERE
 
 
-#When you have made all the edits run this line to save it back to the shiny app data folder
-save(tmp_data, file = paste0(path, fname))
+###############################################################################
+#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+###############################################################################
 
+#When you have made all the edits run this line to save it back to the shiny app data folder
+save(tmp_data, file = filepath)
+
+
+#Prints out filename for saving
+writeClipboard(noquote(paste0(sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath)),"EDITS.R")))
+print(noquote(paste0(sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath)),"EDITS.R")))
+
+
+
+##### #   # ##
+#     ##  # # #
+##    # # # #  #
+#     #  ## #  #
+##### #   # ##
+
+#######################################################################################
+#/\/\/\/\/\/\/\/\/\/\\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\#
+#\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/ #
+#######################################################################################
 
 ####
 #  #
