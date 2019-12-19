@@ -4,21 +4,22 @@
 library(stringi)
 library(plyr)
 library(dplyr)
+library(writexl)
 
 
 
 # Designate the folder where you are getting the .Rdata files.  Must end with '/'.
-shiny_path <-  "//deqlab1/WQM/TMDL/RDataManagement/1911104_LostR_2019/ContinuousDataRTool/Check_shinyapp/data/"
+shiny_path <-  "//deqlab1/WQM/TMDL/RDataManagement/1911091_DairyMcky_2019/ContinuousDataRTool/Check_shinyapp/data/"
 
 # Location for the saved files for the volunteer database
-in_path <- "//deqlab1/WQM/TMDL/aEastern Region/Lost River/2019_LostRiver/ContinousData/ROutputs/"
+in_path <- "//deqlab1/WQM/TMDL/aNorthwest Region/DairyMcKay/WY2019/ContinousData/ROutputs/"
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
 
-out_path <- "//deqlab1/WQM/TMDL/aEastern Region/Lost River/2019_LostRiver/ContinousData/ROutputs/"
+out_path <- "//deqlab1/WQM/TMDL/aNorthwest Region/DairyMcKay/WY2019/ContinousData/ROutputs/"
 
 # Enter VolWQdb.t_Submission Number as text
-sbm <- '1911104'
+sbm <- '1911091'
 
 # AWQMS Project 
 aprj <- 'TMDL'
@@ -98,6 +99,8 @@ acdc <- apply(awqmsCnDat, 2, function(y) gsub(pattern ="NA", replacement = "", y
 
 write.csv(acdc, file = paste0(out_path, aprj, sbm, 'ContinuousDataAwqmsUpload.csv'), na = "")
 
+# Export to Excel file which AWQMS import configuration requires
+write_xlsx(as.data.frame(acdc), path = paste0(out_path, aprj, sbm, 'ContinuousDataAwqmsUpload.xlsx'))
 
 
 
