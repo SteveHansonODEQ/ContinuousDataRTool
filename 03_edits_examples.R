@@ -14,18 +14,15 @@ rm(list = ls())
 
 filepath <- file.choose()
 
-###################################
-###################################
 
 print(filepath)
 load(filepath)
 
+###################################
+###################################
 
-# choose auidt file
-auditpath <- file.choose()
-print(auditpath)
 
-load(auditpath)
+
 
 
 
@@ -38,12 +35,26 @@ load(auditpath)
 # #                     ###     ##           ##             ###         
 
 ####################################################
+
+# choose auidt file
+auditpath <- file.choose()
+print(auditpath)
+
+load(auditpath)
+
 # provide comment with rationale for changes
 dr_info$AUDIT_DATETIME[2] <- as.POSIXct("2018-06-20 13:50:00", tz = "America/Los_Angeles")
 dr_info$IND[2] <- 13132
 dr_info$LOGGED_RESULT [2] <- tmp_data$r[dr_info$IND[2]]
 dr_info$OBS_DATETIME [2] <- tmp_data$DATETIME [dr_info$IND[2]]
 dr_info$AUDIT_GRADE[2] <- "A"
+# Remove bad VALUES from file
+dr_info$COMMENTS[which(dr_info$AUDIT_RESULT > 20)] <- 'DO sat value reported in error'
+dr_info$AUDIT_RESULT[which(dr_info$AUDIT_RESULT > 20)] <- NA
+
+# Remove reported audits from prior deployment, only include the redeploy audits 
+dr_info <- dr_info[-which(dr_info$AUDIT_DATETIME < as.POSIXct(strptime('2019-08-19 17:35:00', format = "%Y-%m-%d %H:%M:%S"))),]
+
 
 save(dr_info, file = auditpath)
 
