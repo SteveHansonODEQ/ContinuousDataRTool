@@ -1,6 +1,7 @@
 # This script was written Jan 2018 to compile continuous data already processed using the Continuous Data Review Scripts
 # used for volunteer data.  The compiled data is for upload to the AWQMS data managment system.
 
+library(tidyverse)
 library(stringi)
 library(plyr)
 library(dplyr)
@@ -9,17 +10,18 @@ library(writexl)
 
 
 # Designate the folder where you are getting the .Rdata files.  Must end with '/'.
-shiny_path <-  "//deqlab1/WQM/TMDL/RDataManagement/1911091_DairyMcky_2019/ContinuousDataRTool/Check_shinyapp/data/"
+shiny_path <-  "//deqlab1/wqm/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/Rdata/FINALdataFiles/"
+
 
 # Location for the saved files for the volunteer database
-in_path <- "//deqlab1/WQM/TMDL/aNorthwest Region/DairyMcKay/WY2019/ContinousData/ROutputs/"
+in_path <- "//deqlab1/wqm/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/Rdata/ROutputs/"
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
 
-out_path <- "//deqlab1/WQM/TMDL/aNorthwest Region/DairyMcKay/WY2019/ContinousData/ROutputs/"
+out_path <- "//deqlab1/wqm/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/Rdata/Test/"
 
 # Enter VolWQdb.t_Submission Number as text
-sbm <- '1911091'
+sbm <- '2006084'
 
 # AWQMS Project 
 aprj <- 'TMDL'
@@ -248,6 +250,31 @@ dySum <- dySum[, c("CharID", "Result", "Unit", "Method", "RsltType", "ORDEQ_DQL"
                    "DEQ_RsltComment", "ActivityType", "SiteID", "SmplColMthd", "SmplColEquip", "SmplDepth", "SmplDepthUnit", "SmplColEquipComment", 
                    "Samplers", "SmplEquipID", "Project", "ActStartDate", "ActStartTime", "ActStartTimeZone", "ActEndDate", "ActEndTime", "ActEndTimeZone",
                    "AnaStartDate", "AnaStartTime", "AnaStartTimeZone", "AnaEndDate", "AnaEndTime", "AnaEndTimeZone", "ActComment")]  
+
+####################
+# Remove DO 30DMADMin if needed
+
+dySum <- dySum[-which(dySum$StatisticalBasis == '30DMADMin'),]
+
+# Actvity fix when a day has and activity end time that doesn't match for all charid need to just pick the latest time.  
+# AWQMS- 	An Activity ID will be generated from the values provided for Monitoring Location ID, Activity Date, Activity Time, and Activity Type. 
+#        This is only guaranteed to produce a unique Activity ID if you provide a unique Activity Time for each Activity at a particular Monitoring Location
+# To keep AWQMS from having this error need to have unique combinations of: 
+# "ActEndTime" when df is grouped by "SiteID", "ActStartDate", "ActStartTime", "ActivityType"
+# with the same "ActEndTime". If there is more than one "ActEndTime" then assign the larger ActEndTime.
+
+fndact <- select(dySum, SiteID, ActStartDate, ActStartTime, ActivityType, ActEndDate, ActEndTime, StatisticalBasis, CharID, Result, Unit ) # just makes it easier to work with
+ActDiffETm <-fndact %>% 
+  group_by(SiteID, ActStartDate, ActStartTime, ActivityType, ActEndDate) %>% # group by activity ID parts
+  mutate(nofactid = n_distinct(ActEndTime)) %>% # this is not necessary but handy to look at
+  mutate(usendtime = max(ActEndTime)) # gives the later time
+#ActDiffETm <- filter(ActDiffETm, nofactid > 1) # this give a df of just the actid's with different times, don't want this for the correction
+
+dySum <- left_join (dySum, ActDiffETm)
+dySum$ActEndTime <- dySum$usendtime 
+dySum <-  select(dySum, -c('nofactid', 'usendtime')) # remove unwanted columns
+
+ETimeChng <- dySum[which(dySum$ActEndTime != dySumJoin$ActEndTime),]
 
 
 # remove text NA's "NA"
