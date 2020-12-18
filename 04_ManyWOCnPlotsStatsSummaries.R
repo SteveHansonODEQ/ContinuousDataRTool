@@ -36,13 +36,19 @@ SubID <- '2006084' # Enter the WORK ORDER ID number.  For volunteer data use the
 
 #3# needed to generate AWQMS upload files
 aprj <- 'TMDL'#  AWQMS Project ID
-
+     
 #4# LOCATION OF DATA FILES TO BE PROCESSED (This shouldn't change)
 shiny_path <- "//deqlab1/WQM/TMDL/aEastern Region/Deschutes/2020/AllFinalCnRDataFiles"
 
 #5# LOCATION TO SAVE DATA FILES CREATED IN PROCESS
-save_path <- "//deqlab1/WQM/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/RData/OutputsTest/"  # make sure this ends with an /
+save_path <- "//deqlab1/WQM/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/RData/ROutputs/"  # make sure this ends with an /
 
+
+
+# trim whitespace from inputs
+SubID <- trimws(SubID, which = "both")
+ORG <- trimws(ORG, which = "both")
+aprj <- trimws(aprj, which = "both")
 
 #######################################
 
@@ -400,6 +406,16 @@ for (i in 1:length(validdatafiles)) {
     }
   }
   
+  
+  
+  ###
+  #  #
+  ##
+  # #
+  #  #educe the days just those starting on the deploy date
+  daydat <- daydat[which(daydat$date >= as.Date(deploydatetime)),]
+  
+  
   ###################################################
   #########################
   
@@ -409,24 +425,13 @@ for (i in 1:length(validdatafiles)) {
     #
   ### ummary Stat Tables (daily and per deployment) for export to csv
   
+  
   # Add deployment metadata
   daydat$LASAR <- fileinfo[,"lasar"]
   daydat$charid <- fileinfo[,"charid"]
   daydat$Depth_m <- fileinfo[,"depth_m"]
   daydat$LoggerID <- fileinfo[,"LoggerID"]
   daydat$SiteDesc <-  fileinfo[,"desc"]
-  
-  ds <- daydat[,c("LASAR", "SiteDesc", "LoggerID", "Depth_m", "charid", "date", "dDTmin", "dDTmax","dyN", "hrNday", 
-                  "dydql", "dDQL", "dyMean", "dyMin", "dyMax", "delta", "dyMedian", "anaStart", "anaEnd", "ma", "cmnt")]
-  
-  ###
-  #  #
-  ##
-  # #
-  #  #educe the days just those starting on the deploy date
-  
-  # reduce daily stats DF to just dates starting on the deploy date
-  ds <- ds[which(ds$date >= as.Date(deploydatetime)),]
   
   
   #####################################
@@ -436,29 +441,27 @@ for (i in 1:length(validdatafiles)) {
   dsir <- "Daily stats include results from previous data collection"
   masi <- "Moving average stat includes results from previous dataset"
   
-  ifelse (is.na(ds$cmnt[which(ds$date == as.Date(deploydatetime))]), 
-          ds$cmnt[which(ds$date == as.Date(deploydatetime))] <- dsir, 
-          ds$cmnt[which(ds$date == as.Date(deploydatetime))] <- paste0(ds$cmnt[which(ds$date == as.Date(deploydatetime))], ' ', dsir)) 
+  ifelse (is.na(daydat$cmnt[which(daydat$date == as.Date(deploydatetime))]), 
+          daydat$cmnt[which(daydat$date == as.Date(deploydatetime))] <- dsir, 
+          daydat$cmnt[which(daydat$date == as.Date(deploydatetime))] <- paste0(daydat$cmnt[which(daydat$date == as.Date(deploydatetime))], ' ', dsir)) 
   #####
     #
     #
     # emperature moving average comments
   
   # For temperature the first 6 days "7 day moving average includes results from previous data collection"
-  # ds$charid == "TEMP"
-  # ds$date > as.Date(deploydatetime) && ds$date < as.Date(deploydatetime)+7
+  # daydat$charid == "TEMP"
+  # daydat$date > as.Date(deploydatetime) && daydat$date < as.Date(deploydatetime)+7
   # tricky part is that each row where the conditions above are met need to apply the ifelse statement to make either make the comment "" or append the comment to existing text
-
+  
   # create a vector of comments for moving averages
-  vmasi <- case_when(ds$charid == "TEMP" &
-                     ds$date > as.Date(deploydatetime) &
-                     ds$date < as.Date(deploydatetime)+7 ~ 
-                       (ifelse (is.na(ds$cmnt), masi, paste0(ds$cmnt, ' ', masi))) )
+  vmasi <- case_when(daydat$charid == "TEMP" &
+                       daydat$date > as.Date(deploydatetime) &
+                       daydat$date < as.Date(deploydatetime)+7 ~ 
+                       (ifelse (is.na(daydat$cmnt), masi, paste0(daydat$cmnt, ' ', masi))) )
   
   # combine the 
-  ds$cmnt <- ifelse(is.na(ds$cmnt), (ifelse(is.na(vmasi), NA, masi)), (ifelse(is.na(vmasi), ds$cmnt, paste0(ds$cmnt, ' ', masi))) )
-  
-  
+  daydat$cmnt <- ifelse(is.na(daydat$cmnt), (ifelse(is.na(vmasi), NA, masi)), (ifelse(is.na(vmasi), daydat$cmnt, paste0(daydat$cmnt, ' ', masi))) )
   
   ##
   # #
@@ -467,16 +470,23 @@ for (i in 1:length(validdatafiles)) {
   
   # For dissolved oxygen the first 29 days "30 day moving average includes results from previous data collection"
   # create a vector of comments for moving averages
-  vmasi <- case_when(ds$charid == "DO" &
-                       ds$date > as.Date(deploydatetime) &
-                       ds$date < as.Date(deploydatetime)+29 ~ 
-                       (ifelse (is.na(ds$cmnt), masi, paste0(ds$cmnt, ' ', masi))) )
+  vmasi <- case_when(daydat$charid == "DO" &
+                      daydat$date > as.Date(deploydatetime) &
+                      daydat$date < as.Date(deploydatetime)+29 ~ 
+                      (ifelse (is.na(daydat$cmnt), masi, paste0(daydat$cmnt, ' ', masi))) )
   
   # combine the 
-  ds$cmnt <- ifelse(is.na(ds$cmnt), (ifelse(is.na(vmasi), NA, masi)), (ifelse(is.na(vmasi), ds$cmnt, paste0(ds$cmnt, ' ', masi))) )
+  daydat$cmnt <- ifelse(is.na(daydat$cmnt), (ifelse(is.na(vmasi), NA, masi)), (ifelse(is.na(vmasi), daydat$cmnt, paste0(daydat$cmnt, ' ', masi))) )
   
+  ###################################################
+  #########################
   
+  ds <- daydat[,c("LASAR", "SiteDesc", "LoggerID", "Depth_m", "charid", "date", "dDTmin", "dDTmax","dyN", "hrNday", 
+                  "dydql", "dDQL", "dyMean", "dyMin", "dyMax", "delta", "dyMedian", "anaStart", "anaEnd", "ma", "cmnt")]
+  
+
   # get rid of comments not needed anymore
+  
   rm(dsir, masi, vmasi)
   
   
@@ -839,7 +849,7 @@ for (i in 1:length(validdatafiles)) {
   
   #
   #
-  ### oad data to database after rbinding all result dataframes for each file together
+  # Create tempoarary datafile for later use after rbinding all result dataframes for each file together
   print('load results stats to db')
   
   if (i == 1) {
@@ -999,9 +1009,7 @@ for (i in 1:length(validdatafiles)) {
   t_CnAuditResult <- dr_info[,c("ResultID","ActivityID","CharID","Result","Unit","Method","RsltType",
                                 "ORDEQ_DQL","RsltStatus","Org_RsltComment")]
   
-  #
-  #
-  ##oad Data into VolWQdb
+   # Generate temparorary data file
   # Upload the audit activity information to a tempoary table in the database
   
   if (i == 1) {

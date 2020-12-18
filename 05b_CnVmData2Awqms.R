@@ -14,11 +14,11 @@ shiny_path <-  "//deqlab1/wqm/TMDL/aEastern Region/Deschutes/2020/20200521/Sonde
 
 
 # Location for the saved files for the volunteer database
-in_path <- "//deqlab1/wqm/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/Rdata/ROutputs/"
+in_path <- "//deqlab1/WQM/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/RData/ROutputs/"
 
 # Designate the folder where you will Save the outputs...this may be the same as above. Must end with '/'.
 
-out_path <- "//deqlab1/wqm/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/Rdata/Test/"
+out_path <- "//deqlab1/WQM/TMDL/aEastern Region/Deschutes/2020/20200521/SondeData/RData/ROutputs/"
 
 # Enter VolWQdb.t_Submission Number as text
 sbm <- '2006084'
@@ -31,6 +31,11 @@ load('//deqlab1/wqm/DataManagement/ContinuousDataRTool/ConCharInfo.RData')
 
 #Set working directory
 setwd(shiny_path)
+
+
+# trim whitespace from inputs
+sbm <- trimws(sbm, which = "both")
+aprj <- trimws(aprj, which = "both")
 
 
 ######################################
@@ -94,7 +99,7 @@ awqmsCnDat$Time <- strftime(awqmsCnDat$DATETIME, format =  '%H:%M')
 #  Add Time Zone
 awqmsCnDat$TimeZone <- stri_sub(as.character(as.POSIXct(awqmsCnDat$DATETIME), format = '%Y-%m-%d %H:%M:%S %Z') , -3)
 
-# remove text NA's that are character "NA"
+# remove text NA's that are character "NA"...gotta be a faster way to do this.
 acdc <- apply(awqmsCnDat, 2, function(y) gsub(pattern ="NA", replacement = "", y))
 
 # Export to csv removing real NA values
@@ -253,8 +258,9 @@ dySum <- dySum[, c("CharID", "Result", "Unit", "Method", "RsltType", "ORDEQ_DQL"
 
 ####################
 # Remove DO 30DMADMin if needed
-
-dySum <- dySum[-which(dySum$StatisticalBasis == '30DMADMin'),]
+if("30DMADMin" %in% unique(dySum$StatisticalBasis)) {
+  dySum <- dySum[-which(dySum$StatisticalBasis == '30DMADMin'),] 
+} # the -which subset wipes out the df if value not present
 
 # Actvity fix when a day has and activity end time that doesn't match for all charid need to just pick the latest time.  
 # AWQMS- 	An Activity ID will be generated from the values provided for Monitoring Location ID, Activity Date, Activity Time, and Activity Type. 
@@ -274,7 +280,6 @@ dySum <- left_join (dySum, ActDiffETm)
 dySum$ActEndTime <- dySum$usendtime 
 dySum <-  select(dySum, -c('nofactid', 'usendtime')) # remove unwanted columns
 
-ETimeChng <- dySum[which(dySum$ActEndTime != dySumJoin$ActEndTime),]
 
 
 # remove text NA's "NA"

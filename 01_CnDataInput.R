@@ -49,7 +49,8 @@ library(lubridate)
 #Set the data file path and file that you want to process
 src_file <- "//deqlab1/wqm/TMDL/RDataManagement/TillamookSloughs_DO_Oct_2016/1611171_TillSlouOct2016.xlsx"
 
-SubID <- '1611171' # Enter the submission ID from VolWQDB
+SubID <- ' 1611171 ' # Enter the submission ID from VolWQDB or Element
+
 
 
 
@@ -68,6 +69,9 @@ save_dir <- 'S:/DataManagement/ContinuousDataRTool/Check_shinyapp/data/'
 
 # for comparison to valid charid values load
 load('//deqlab1/wqm/DataManagement/ContinuousDataRTool/ConCharInfo.RData')
+
+# Remove white space from submission id
+SubID <- trimws(SubID, which = "both")
 
 #Grab the master info sheet that has the logger ids
 capture.output(smi <- read_excel(src_file, sheet = 'SiteMasterInfo', skip = 5), file = "nul")  ###  NOTE skip rows seem inconsistent 4 or 5
